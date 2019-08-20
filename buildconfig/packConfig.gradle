@@ -1,0 +1,8 @@
+﻿ext {
+    signingRelease = [
+            keyAlias     : 'test123',
+            keyPassword  : '123456',
+            storeFile    : file('keystores/weather.jks'),
+            storePassword: '123456'
+    ]
+}
