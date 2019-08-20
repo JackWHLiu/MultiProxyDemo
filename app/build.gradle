@@ -1,0 +1,139 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.lwh.product"
+        minSdkVersion 15
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        flavorDimensions "app"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+            }
+        }
+    }
+    signingConfigs {
+        release {
+            keyAlias 'weather'
+            keyPassword '123456'
+            storeFile file('keystores/test123.jks')
+            storePassword '123456'
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            zipAlignEnabled false  // Zipalign优化
+            shrinkResources false // 移除无用的resource文件,必须和minifyEnabled 一起使用
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            zipAlignEnabled false  // Zipalign优化
+            shrinkResources false // 移除无用的resource文件,必须和minifyEnabled 一起使用
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        //打包时的相关配置
+        //pickFirsts做用是 当有重复文件时 打包会报错 这样配置会使用第一个匹配的文件打包进入apk
+        // 表示当apk中有重复的META-INF目录下有重复的LICENSE文件时 只用第一个 这样打包就不会报错
+        pickFirsts = ['META-INF/LICENSE']
+        //merges何必 当出现重复文件时 合并重复的文件 然后打包入apk
+        //这个是有默认值得 merges = [] 这样会把默默认值去掉 所以我们用下面这种方式 在默认值后添加
+        merge 'META-INF/LICENSE'
+    }
+    productFlavors {
+        a {
+            dimension "app"
+            buildConfigField 'String', 'PROXY_CODE', '"AAA"'
+            applicationIdSuffix "aaa"
+            versionCode 1
+            versionName "v1.0.0"
+            manifestPlaceholders = [
+                    APP_NAME: "天气1"
+            ]
+        }
+        b {
+            dimension "app"
+            buildConfigField 'String', 'PROXY_CODE', '"BBB"'
+            applicationIdSuffix "bbb"
+            versionCode 2
+            versionName "v1.0.1"
+            manifestPlaceholders = [
+                    APP_NAME: "天气2"
+            ]
+        }
+        c {
+            dimension "app"
+            buildConfigField 'String', 'PROXY_CODE', '"CCC"'
+            applicationIdSuffix "ccc"
+            versionCode 6
+            versionName "v1.1.0"
+            manifestPlaceholders = [
+                    APP_NAME: "天气3"
+            ]
+        }
+        d {
+            dimension "app"
+            buildConfigField 'String', 'PROXY_CODE', '"DDD"'
+            applicationIdSuffix "ddd"
+            versionCode 4
+            versionName "v1.0.3"
+            manifestPlaceholders = [
+                    APP_NAME: "天气4"
+            ]
+        }
+        e {
+            dimension "app"
+            buildConfigField 'String', 'PROXY_CODE', '"EEE"'
+            applicationIdSuffix "eee"
+            versionCode 5
+            versionName "v1.0.4"
+            manifestPlaceholders = [
+                    APP_NAME: "天气5"
+            ]
+        }
+    }
+    android.applicationVariants.all {
+        variant ->
+            //这个修改输出的APK路径
+            if (variant.buildType.name == "release") {
+                variant.getPackageApplication().outputDirectory = new File(project.rootDir
+                        .absolutePath + "/products/")
+                variant.outputs.all {
+                    outputFileName = "${variant.applicationId}_" +
+                            "${variant.versionName}_" + buildTime(true) + ".apk"
+                }
+            }
+    }
+}
+
+// 获取时间的函数
+def static buildTime(def release = false) {
+    if (release) {
+        return new Date().format("yyyyMMddHHmmss")
+    } else
+        return new Date().format("HHmmss")
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    // 多渠道差异打包框架
+    api 'com.github.JackWHLiu.jackknife:jackknife-multiproxy:4.2.1'
+    // 提供丰富的颜色和自定义控件
+    api 'com.github.JackWHLiu.jackknife:jackknife-widget:4.2.1'
+    api 'com.github.JackWHLiu:rvadapter:1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+}
